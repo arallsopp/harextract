@@ -28,215 +28,223 @@
 <head>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <title>MP3 Extractor</title>
-<style>
- header {
-     background: black;
-     color: white;
-     font-size: xxx-large;
- }
- .closed .ifopen { display: none; }
+    <style>
+        header {
+            background: black;
+            color: white;
+            font-size: xxx-large;
+        }
+        .closed .ifopen { display: none; }
 
-     .open .ifclosed { display: none; }
-     .zipidle .ifzipbusy { display: none; }
-     .zipbusy .ifzipidle { display: none; }
-     .invisible, .ifnewrelease { display: none; }
-     .newrelease .ifnewrelease { display: initial; }
+        .open .ifclosed { display: none; }
+        .zipidle .ifzipbusy { display: none; }
+        .zipbusy .ifzipidle { display: none; }
+        .invisible, .ifnewrelease { display: none; }
+        .newrelease .ifnewrelease { display: initial; }
 
-</style>
-<script>
-let loaded = {};
-function alertError (context, e) {
-    //let details = JSON.stringify(e, Object.getOwnPropertyNames(e), 2);
-    //alert(`Error ${context}: ${e}\n\nDetails:\n\n${details}`);
-    // that's an ugly dialog just do this instead:
-    let summary = `Error ${context}: ${e.message}`;
-    console.log(`harextract: ${summary}`);
-    console.log(e);
-    alert(`${summary}\n\nSee console for details.`);
-}
-function uiSetDocState (isopen) {
-    document.body.classList.remove(isopen ? 'closed' : 'open');
-    document.body.classList.add(isopen ? 'open' : 'closed');
-}
-function uiSetZipState (isbusy) {
-    document.body.classList.remove(isbusy ? 'zipidle' : 'zipbusy');
-    document.body.classList.add(isbusy ? 'zipbusy' : 'zipidle');
-}
-function clearUI () {
-    loaded = {};
-    uiSetDocState(false);
-    uiSetZipState(false);
-    document.querySelectorAll(".clearme").forEach((el) => el.innerHTML = '');
-}
-function strCompare (a, b) {
-    return a.toLocaleLowerCase().localeCompare(b.toLocaleLowerCase());
-}
-function loadFailed (e) {
-    clearUI();
-    alertError('loading file', e);
-}
-function openHAR (input) {
-    clearUI();
-    if (!input.files || !input.files.length) {
-        alert('No file selected.');
-    } else {
-        loaded.filename = input.files[0].name;
-        domSetText('harfilename', loaded.filename);
-        let reader = new FileReader();
-        reader.onload = (e) => loadHARText(e.target.result);
-        reader.onerror = (e) => loadFailed(reader.error);
-        reader.readAsText(input.files[0]);
-    }
-}
-function loadHARText (text) {
-    let filter_ext =  document.getElementById("filter_extension").value;
-    try {
-        loadHARJSON(JSON.parse(text),filter_ext);
-    } catch (e) {
-        loadFailed(e);
-    }
-}
-function loadHARJSON (har,filter_ext) {
-
-    // extract and parse interesting entries
-    let harents = [];
-    let commonpath = null;
-    for ([id,ent] of har.log.entries.entries()) {
-        let harent = { id: id };
-        let fullpath = new URL(ent.request.url).pathname.split('/');
-        harent.name = fullpath.pop();
-        harent.ext = harent.name.split('.').pop();
-        harent.type = ent.response.content.mimeType; 
-        harent.size = ent.response.content.size;
-        harent.pathcomps = fullpath; // .path string will be set below
-        if(filter_ext !== 'all' && (harent.ext !== filter_ext)) {
-            //omit this as it doesn't match the filter extension
-        }else {
-
-            if (!ent.response.content.text)
-                harent.error = 'No content.';
-            else if (ent.response.content.encoding != 'base64')
-                harent.error = "Can't decode.";
-            if (harent.error) {
-                console.log(`harextract: skipped ${harent.name} (${id}): ${harent.error}`);
+    </style>
+    <script>
+        let loaded = {};
+        function alertError (context, e) {
+            //let details = JSON.stringify(e, Object.getOwnPropertyNames(e), 2);
+            //alert(`Error ${context}: ${e}\n\nDetails:\n\n${details}`);
+            // that's an ugly dialog just do this instead:
+            let summary = `Error ${context}: ${e.message}`;
+            console.log(`harextract: ${summary}`);
+            console.log(e);
+            alert(`${summary}\n\nSee console for details.`);
+        }
+        function uiSetDocState (isopen) {
+            document.body.classList.remove(isopen ? 'closed' : 'open');
+            document.body.classList.add(isopen ? 'open' : 'closed');
+        }
+        function uiSetZipState (isbusy) {
+            document.body.classList.remove(isbusy ? 'zipidle' : 'zipbusy');
+            document.body.classList.add(isbusy ? 'zipbusy' : 'zipidle');
+        }
+        function clearUI () {
+            loaded = {};
+            uiSetDocState(false);
+            uiSetZipState(false);
+            document.querySelectorAll(".clearme").forEach((el) => el.innerHTML = '');
+        }
+        function strCompare (a, b) {
+            return a.toLocaleLowerCase().localeCompare(b.toLocaleLowerCase());
+        }
+        function loadFailed (e) {
+            clearUI();
+            alertError('loading file', e);
+        }
+        function openHAR (input) {
+            clearUI();
+            if (!input.files || !input.files.length) {
+                alert('No file selected.');
             } else {
-                commonpath = fullpath.slice(0, [...fullpath, null].findIndex((p, n) => p !== (commonpath || fullpath)[n])); // ;)
-                harents.push(harent); // note: we can now guarantee that if harents has items, commonpath is set.
+                loaded.filename = input.files[0].name;
+                domSetText('harfilename', loaded.filename);
+                let reader = new FileReader();
+                reader.onload = (e) => loadHARText(e.target.result);
+                reader.onerror = (e) => loadFailed(reader.error);
+                reader.readAsText(input.files[0]);
             }
         }
-    }
-    
-    // set path strings for all files; for non-skipped files, also strip common path prefixes.
-    harents.forEach(ent => ent.path = ent.pathcomps.slice(commonpath.length).join('/'));
-
-    let entsort = function (a,b) {
-        let p = strCompare(a.path, b.path);
-        return (p != 0) ? p : strCompare(a.name, b.name);
-    }
-   
-    harents.sort(entsort);
-
-    loaded.data = har.log.entries;
-    loaded.entries = harents;
-
-    // ui stuff from here down
-
-    let makecheckbox = function (ent){
-        let excludes = ['noplay.mp3','startup0.mp3'],
-            excluded = false;
-        excludes.forEach(excl => {
-            if (ent.name.toLowerCase() === excl) excluded = true;
-        })
-
-        let c = document.createElement('input');
-        c.type = 'checkbox';
-        c.checked = !excluded;
-        return c;
-    }
-    let makenamelink = function (ent) {
-        a = document.createElement("a");
-        let enc = har.log.entries[ent.id].response.content.encoding;
-        let data = har.log.entries[ent.id].response.content.text;
-        a.href = `data:${ent.type};${enc},${data}`;
-        a.target = '_blank';
-        a.download = ent.name;
-        a.innerText = ent.name;
-        return a;
-    }
-
-    populateTable('entryinfo', harents, [
-        { name:'Checked',  value:makecheckbox },
-        { name:'ID',       value:(e)=>e.id    },
-        { name:'Filename', value:makenamelink },
-        { name:'Type',     value:(e)=>e.type  },
-        { name:'Size',     value:(e)=>e.size  },
-        { name:'Path',     value:(e)=>e.path  }
-    ]);
-
-    uiSetDocState(true);
-
-}
-
-function saveChecked(){
-    let links = document.querySelectorAll("table a"),
-        counter = 0;
-
-    console.log(links);
-    for(link = 0; link < links.length; link++){
-        //if checked, click it
-        console.log('checking link',link, links[link]);
-        let checked = links[link].parentNode.parentNode.querySelector('input').checked;
-        if(checked) {
-            counter++;
-            if(counter % 10 === 0){
-                //chrome won't download more than 10 at once without stopping
-                window.alert('Saved ' + counter + ' links.');
-                return;
+        function loadHARText (text) {
+            let filter_ext =  document.getElementById("filter_extension").value;
+            try {
+                loadHARJSON(JSON.parse(text),filter_ext);
+            } catch (e) {
+                loadFailed(e);
             }
-            links[link].click();
         }
-        links[link].parentNode.parentNode.remove();
-    };
-    window.alert('Saved ' + counter + ' links.');
-}
-function populateTable (tableid, items, fields) {
+        function loadHARJSON (har,filter_ext) {
 
-    let ebody;
-    {
-        let etable = document.getElementById(tableid);
-        etable.innerHTML = '';
-        let header = etable.createTHead().insertRow();
-        for (field of fields)
-            domAppendTH(header).innerText = field.name;
-        ebody = etable.createTBody();
-    }
-    
-    for (ent of items) {
-        let erow = ebody.insertRow();
-        for (field of fields) {
-            let value = field.value(ent);
-            if (value instanceof Node)
-                erow.insertCell().appendChild(value);
-            else
-                erow.insertCell().innerText = value;
+            // extract and parse interesting entries
+            let harents = [];
+            let commonpath = null;
+            for ([id,ent] of har.log.entries.entries()) {
+                let harent = { id: id };
+                let fullpath = new URL(ent.request.url).pathname.split('/');
+                harent.name = fullpath.pop();
+                harent.ext = harent.name.split('.').pop();
+                harent.type = ent.response.content.mimeType;
+                harent.size = ent.response.content.size;
+                harent.pathcomps = fullpath; // .path string will be set below
+                if(filter_ext !== 'all' && (harent.ext !== filter_ext)) {
+                    //omit this as it doesn't match the filter extension
+                }else {
+
+                    if (!ent.response.content.text)
+                        harent.error = 'No content.';
+                    else if (ent.response.content.encoding != 'base64')
+                        harent.error = "Can't decode.";
+                    if (harent.error) {
+                        console.log(`harextract: skipped ${harent.name} (${id}): ${harent.error}`);
+                    } else {
+                        commonpath = fullpath.slice(0, [...fullpath, null].findIndex((p, n) => p !== (commonpath || fullpath)[n])); // ;)
+                        harents.push(harent); // note: we can now guarantee that if harents has items, commonpath is set.
+                    }
+                }
+            }
+
+            // set path strings for all files; for non-skipped files, also strip common path prefixes.
+            harents.forEach(ent => ent.path = ent.pathcomps.slice(commonpath.length).join('/'));
+
+            let entsort = function (a,b) {
+                let p = strCompare(a.path, b.path);
+                return (p != 0) ? p : strCompare(a.name, b.name);
+            }
+
+            harents.sort(entsort);
+
+            loaded.data = har.log.entries;
+            loaded.entries = harents;
+
+            // ui stuff from here down
+
+            let makecheckbox = function (ent){
+                let excludes = ['noplay.mp3','startup0.mp3'],
+                    excluded = false;
+                excludes.forEach(excl => {
+                    if (ent.name.toLowerCase() === excl) excluded = true;
+                })
+
+                let c = document.createElement('input');
+                c.type = 'checkbox';
+                c.checked = !excluded;
+                return c;
+            }
+            let makenamelink = function (ent) {
+                a = document.createElement("a");
+                let enc = har.log.entries[ent.id].response.content.encoding;
+                let data = har.log.entries[ent.id].response.content.text;
+                a.href = `data:${ent.type};${enc},${data}`;
+                a.target = '_blank';
+                a.download = ent.name;
+                a.innerText = ent.name;
+                return a;
+            }
+
+            populateTable('entryinfo', harents, [
+                { name:'Checked',  value:makecheckbox },
+                { name:'ID',       value:(e)=>e.id    },
+                { name:'Filename', value:makenamelink },
+                { name:'Type',     value:(e)=>e.type  },
+                { name:'Size',     value:(e)=>e.size  },
+                { name:'Path',     value:(e)=>e.path  }
+            ]);
+
+            uiSetDocState(true);
+
         }
-    }
 
-}
+        function pause(msec) {
+            return new Promise(
+                (resolve, reject) => {
+                    setTimeout(resolve, msec || 1000);
+                }
+            );
+        }
+
+
+        async function saveChecked(){
+            let links = document.querySelectorAll("table a"),
+                counter = 0;
+
+            console.log(links);
+            for(link = 0; link < links.length; link++){
+                //if checked, click it
+                console.log('checking link',link, links[link]);
+                let checked = links[link].parentNode.parentNode.querySelector('input').checked;
+                if(checked) {
+                    counter++;
+                    if(counter % 10 === 0){
+                        //chrome won't download more than 10 at once without a pause
+                        await pause(1000);
+                        console.log('waiting....');
+                    }
+                    links[link].click();
+                }
+            };
+            window.alert('Saved ' + counter + ' links.');
+        }
+        function populateTable (tableid, items, fields) {
+
+            let ebody;
+            {
+                let etable = document.getElementById(tableid);
+                etable.innerHTML = '';
+                let header = etable.createTHead().insertRow();
+                for (field of fields)
+                    domAppendTH(header).innerText = field.name;
+                ebody = etable.createTBody();
+            }
+
+            for (ent of items) {
+                let erow = ebody.insertRow();
+                for (field of fields) {
+                    let value = field.value(ent);
+                    if (value instanceof Node)
+                        erow.insertCell().appendChild(value);
+                    else
+                        erow.insertCell().innerText = value;
+                }
+            }
+
+        }
 
 
 
-// i'd really like this to stay self-contained and offline, so i'm rolling my own
-// dom utility functions instead of using e.g. jquery.
-function domSetText (id, text) {
-    document.querySelector(`#${id}`).innerText = text;
-}
-function domAppendTH (header) { 
-    // todo: shouldn't there be table api for this? insertCell only adds td's.
-    let th = document.createElement('th');
-    return header.appendChild(th);
-}
-</script>
+        // i'd really like this to stay self-contained and offline, so i'm rolling my own
+        // dom utility functions instead of using e.g. jquery.
+        function domSetText (id, text) {
+            document.querySelector(`#${id}`).innerText = text;
+        }
+        function domAppendTH (header) {
+            // todo: shouldn't there be table api for this? insertCell only adds td's.
+            let th = document.createElement('th');
+            return header.appendChild(th);
+        }
+    </script>
 </head>
 <body class="closed zipidle d-flex flex-column h-100">
 <header class="p-3 mb-3">
@@ -248,7 +256,7 @@ function domAppendTH (header) {
 </header>
 <div class="container flex-shrink-0 mb-3">
 
-<div class="row">
+    <div class="row">
 
     </div>
     <div class="row mb-3">
@@ -286,9 +294,9 @@ function domAppendTH (header) {
                 </select>
             </div>
         </div>
-       <div class="mb-3 row">
+        <div class="mb-3 row">
 
-           <label for="filter_extension" class="col-md-2 col-form-label">File Select</label>
+            <label for="filter_extension" class="col-md-2 col-form-label">File Select</label>
             <div class="col-md-10">
                 <input type="file" accept=".har,application/json" onclick="this.value=null" onchange="openHAR(this)" class="invisible" id="harfileinput">
                 <label class="ifzipidle" for="harfileinput"><button class="btn btn-primary" onclick="this.parentElement.click()">Choose a HAR File...</button></label>
@@ -305,14 +313,14 @@ function domAppendTH (header) {
 <footer class="footer mt-auto py-3 bg-light">
     <div class="container">
         <div class="row">
-          <div class="col-md-3 text-muted">
-              For Evie Allsopp
-          </div>
-          <div class="col-md-9 text-muted text-md-end">
-              Forked from HARExtract Copyright &copy; 2021-2022, Jason Cipriani
-              | <a href="https://www.github.com/JC3/harextract/blob/master/LICENSE">GPLv3</a>
-              | <a href="https://www.github.com/JC3/harextract">GitHub</a>
-          </div>
+            <div class="col-md-3 text-muted">
+                For Evie Allsopp
+            </div>
+            <div class="col-md-9 text-muted text-md-end">
+                Forked from HARExtract Copyright &copy; 2021-2022, Jason Cipriani
+                | <a href="https://www.github.com/JC3/harextract/blob/master/LICENSE">GPLv3</a>
+                | <a href="https://www.github.com/JC3/harextract">GitHub</a>
+            </div>
         </div>
     </div>
 </footer>
