@@ -327,21 +327,54 @@
         </div>
         <div class="tab-pane fade" id="player" role="tabpanel" aria-labelledby="player-tab">
 
-            <input type="file" id="musicFile" accept="audio/*">
-            <button onclick="playMusic()">Load into Player</button>
-            <button onclick="setSpeed(0.5)">Slow</button>
-            <audio id="musicPlayer" controls=""></audio>
-            <script>
+            <div class="my-3 row">
+                <label for="musicFile" class="col-md-2 col-form-label">Load file</label>
+                <div class="col-md-10">
+                    <input type="file" id="musicFile" accept="audio/*" onchange="playMusic()">
+                </div>
+            </div>
+            <div class="my-3 row">
+                <label for="playspeed" class="col-md-2 col-form-label">Filter files</label>
+                <div class="col-md-10">
+                    <select class="form-select" id="playspeed" onchange="setSpeed(this.value)">
+                        <option value="0.25">Quarter speed</option>
+                        <option value="0.5">Half speed</option>
+                        <option value="0.75">Three quarters speed</option>
+                        <option value="1" selected>Full Speed</option>
+                        <option value="1.25">1.25 speed</option>
+                        <option value="1.5">1.5 speed</option>
+                        <option value="2">2 x speed</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="my-3 row">
+                <span class="col-md-2 col-form-label">Play Controls</span>
+                <div class="col-md-10">
+                    <button type="button" class="btn btn-primary" onclick="seek(-5)">- 5 secs</button>
+                    <button type="button" class="btn btn-primary" onclick="seek(+5)">+ 5 secs</button>
+                </div>
+            </div>
+
+            <div class="my-3 row">
+                <audio id="musicPlayer" controls=""></audio>
+            </div>
+                <script>
 
                 function playMusic() {
                     var musicFile = document.getElementById("musicFile").files[0],
                         musicPlayer = document.getElementById("musicPlayer");
                     musicPlayer.src = URL.createObjectURL(musicFile);
+                    musicPlayer.playbackRate = 1;
                     musicPlayer.play();
+                }
+                function seek(seconds){
+                    var musicPlayer = document.getElementById("musicPlayer");
+                    musicPlayer.currentTime += seconds;
                 }
                 function setSpeed(speed) {
                     var musicPlayer = document.getElementById("musicPlayer");
-                    musicPlayer.playbackRate = 0.5;
+                    musicPlayer.playbackRate = speed;
                 };
 
             </script>
