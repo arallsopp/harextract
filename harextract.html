@@ -142,10 +142,10 @@ function loadHARJSON (har,filter_ext) {
     // ui stuff from here down
 
     let makecheckbox = function (ent){
-        let excludes = ['NoPlay.mp3'],
+        let excludes = ['noplay.mp3','startup0.mp3'],
             excluded = false;
         excludes.forEach(excl => {
-            if (ent.name === excl) excluded = true;
+            if (ent.name.toLowerCase() === excl) excluded = true;
         })
 
         let c = document.createElement('input');
