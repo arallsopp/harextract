@@ -24,17 +24,24 @@
     JSZip license: https://github.com/Stuk/jszip/blob/v3.7.1/LICENSE.markdown
 -->
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-100">
 <head>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <title>MP3 Extractor</title>
 <style>
-.closed .ifopen { display: none; }
-.open .ifclosed { display: none; }
-.zipidle .ifzipbusy { display: none; }
-.zipbusy .ifzipidle { display: none; }
-.invisible, .ifnewrelease { display: none; }
-.newrelease .ifnewrelease { display: initial; }
+ header {
+     background: black;
+     color: white;
+     font-size: xxx-large;
+ }
+ .closed .ifopen { display: none; }
+
+     .open .ifclosed { display: none; }
+     .zipidle .ifzipbusy { display: none; }
+     .zipbusy .ifzipidle { display: none; }
+     .invisible, .ifnewrelease { display: none; }
+     .newrelease .ifnewrelease { display: initial; }
+
 </style>
 <script>
 let loaded = {};
@@ -170,17 +177,19 @@ function loadHARJSON (har,filter_ext) {
 
 }
 function saveChecked(){
-    links = document.querySelectorAll("table a");
+    let links = document.querySelectorAll("table a"),
+        counter = 0;
+
     console.log(links);
-    window.links = links;
     links.forEach(link => {
         //if checked, click it
-        checked = link.parentNode.parentNode.querySelector('input').value == 'on';
+        let checked = link.parentNode.parentNode.querySelector('input').checked;
         if(checked) {
+            counter++;
             link.click();
         }
     });
-    window.alert('Saved ' + links.length + ' links.');
+    window.alert('Saved ' + counter + ' links.');
 }
 function populateTable (tableid, items, fields) {
 
@@ -221,32 +230,81 @@ function domAppendTH (header) {
 }
 </script>
 </head>
-<body class="closed zipidle">
-    <div class="section titlebar">
-        <div>MP3 Extractor</div>
+<body class="closed zipidle d-flex flex-column h-100">
+<header class="p-3 mb-3">
+    <div class="container">
+        <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+            HAR Extractor
+        </div>
+    </div>
+</header>
+<div class="container flex-shrink-0 mb-3">
+
+<div class="row">
+
+    </div>
+    <div class="row mb-3">
+        <h3>Instructions</h3>
+        <div class="accordion" id="accordionExample">
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingOne">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+                        How do I get a HAR file?
+                    </button>
+                </h2>
+                <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+                    <div class="accordion-body">
+                        <strong>Instructions for Use</strong>
+                        <ul>
+                            <li>Load <a href="https://cyberbass.org/" target="_blank">cyberbass</a> in Chrome and turn on inspection</li>
+                            <li>Inspect the network traffic, filtering to 'media' items if preferred</li>
+                            <li>Play each part you want to extract</li>
+                            <li>When you're done, download the HAR file from the browser and open it here</li>
+                            <li>Optionally clear your network traffic to start again</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
     <div class="section">
-        <input type="file" accept=".har,application/json" onclick="this.value=null" onchange="openHAR(this)" class="invisible" id="harfileinput">
-        <label class="ifzipidle" for="harfileinput"><button onclick="this.parentElement.click()">Choose File...</button></label>
-        <label class="ifzipbusy"><button disabled>Choose File...</button><!-- hack to "disable" button without having to code stuff --></label>
-        <span class="clearme" id="harfilename"></span>
-        <select id="filter_extension">
-            <option value="mp3" selected>MP3</option>
-            <option value="mid">Midi</option>
-            <option value="all">All files</option>
-        </select>
+        <div class="mb-3 row">
+            <label for="filter_extension" class="col-sm-2 col-form-label">Filter files</label>
+            <div class="col-sm-10">
+                <select id="filter_extension" class="form-select">
+                    <option value="mp3" selected>MP3</option>
+                    <option value="mid">Midi</option>
+                    <option value="all">All files</option>
+                </select>
+            </div>
+        </div>
+       <div class="mb-3 row">
+
+           <label for="filter_extension" class="col-sm-2 col-form-label">File Select</label>
+            <div class="col-sm-10">
+                <input type="file" accept=".har,application/json" onclick="this.value=null" onchange="openHAR(this)" class="invisible" id="harfileinput">
+                <label class="ifzipidle" for="harfileinput"><button class="btn btn-primary" onclick="this.parentElement.click()">Choose File...</button></label>
+                <label class="ifzipbusy"><button disabled>Choose File...</button><!-- hack to "disable" button without having to code stuff --></label>
+                <span class="clearme" id="harfilename"></span>
+            </div>
+        </div>
+
+
+
     </div>
 
     <div class="section ifopen">
         <table class="entryinfo clearme table" id="entryinfo"></table>
-        <button type="button" onclick="saveChecked()">Save Checked</button>
+        <button type="button" class="btn btn-primary" onclick="saveChecked()">Save Checked</button>
     </div>
-    <div class="section legal">
-        <div>
-            Based upon HARExtract Copyright &copy; 2021-2022, Jason Cipriani
+</div>
+<footer class="footer mt-auto py-3 bg-light">
+    <div class="container">
+        <span class="text-muted">Forked from HARExtract Copyright &copy; 2021-2022, Jason Cipriani
             | <a href="https://www.github.com/JC3/harextract/blob/master/LICENSE">GPLv3</a>
-            | <a href="https://www.github.com/JC3/harextract">GitHub</a>
-        </div>
+            | <a href="https://www.github.com/JC3/harextract">GitHub</a></span>
     </div>
+</footer>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
 </body>
 </html>
