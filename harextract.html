@@ -360,8 +360,8 @@
                 <div class="col-md-10">
                     <button type="button" class="btn btn-primary" onclick="seek(-10)"><i class="bi bi-rewind-fill"></i></button>
                     <button type="button" class="btn btn-primary" onclick="seek(-5)"><i class="bi bi-rewind"></i></button>
-                    <button type="button" class="btn btn-primary" onclick="pause()"><i class="bi bi-pause"></i></button>
-                    <button type="button" class="btn btn-primary" onclick="play()"><i class="bi bi-play"></i></button>
+                    <button type="button" class="btn btn-primary" onclick="play(false)"><i class="bi bi-pause"></i></button>
+                    <button type="button" class="btn btn-primary" onclick="play(true)"><i class="bi bi-play"></i></button>
                     <button type="button" class="btn btn-primary" onclick="seek(+5)"><i class="bi bi-fast-forward"></i></button>
                     <button type="button" class="btn btn-primary" onclick="seek(+10)"><i class="bi bi-fast-forward-fill"></i></button>
 
@@ -386,6 +386,15 @@
                     A = musicPlayer.currentTime;
                     document.getElementById("A").innerHTML = "(" + A + ")";
                     document.getElementById("releaseloop").classList.remove('invisible');
+                }
+
+                function play(go){
+                    var musicPlayer = document.getElementById("musicPlayer");
+                    if(go) {
+                        musicPlayer.play();
+                    }else{
+                        musicPlayer.pause();
+                    }
                 }
                 function setOut(){
                     var musicPlayer = document.getElementById("musicPlayer");
