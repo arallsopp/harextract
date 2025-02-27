@@ -337,7 +337,7 @@
             <div class="my-3 row">
                 <label for="playspeed" class="col-md-2 col-form-label">Playback speed (<span id="speedindicator">1.0</span>)</label>
                 <div class="col-md-10">
-                    <input type="range" class="form-range" min="0.2" max="1.5" step="0.1" id="playspeed" onchange="setSpeed(this.value)">
+                    <input type="range" class="form-range" min="0.2" max="1.8" step="0.1" id="playspeed" onchange="setSpeed(this.value)">
                 </div>
             </div>
 
@@ -346,7 +346,7 @@
                 <div class="col-md-10">
                     <button type="button" class="btn btn-primary" onclick="seek(-5)">- 5 secs</button>
                     <button type="button" class="btn btn-primary" onclick="seek(+5)">+ 5 secs</button>
-                    <button type="button" class="btn btn-primary" onclick="setSpeed(1)">Reset Speed</button>
+                    <button type="button" class="btn btn-primary" onclick="setSpeed('1.0')">Reset Speed</button>
                 </div>
             </div>
 
@@ -359,7 +359,7 @@
                     var musicFile = document.getElementById("musicFile").files[0],
                         musicPlayer = document.getElementById("musicPlayer");
                     musicPlayer.src = URL.createObjectURL(musicFile);
-                    musicPlayer.playbackRate = 1;
+                    setSpeed('1.0');
                     musicPlayer.play();
                 }
                 function seek(seconds){
