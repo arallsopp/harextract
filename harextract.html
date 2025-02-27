@@ -177,16 +177,7 @@ function loadHARJSON (har,filter_ext) {
 
 }
 
-function pause(msec) {
-    return new Promise(
-        (resolve, reject) => {
-            setTimeout(resolve, msec || 1000);
-        }
-    );
-}
-
-
-async function saveChecked(){
+function saveChecked(){
     let links = document.querySelectorAll("table a"),
         counter = 0;
 
@@ -197,12 +188,14 @@ async function saveChecked(){
         let checked = links[link].parentNode.parentNode.querySelector('input').checked;
         if(checked) {
             counter++;
-            if(!counter % 10){
-                //chrome won't download more than 10 at once without a pause
-                await pause(1000);
+            if(counter % 10 === 0){
+                //chrome won't download more than 10 at once without stopping
+                window.alert('Saved ' + counter + ' links.');
+                return;
             }
             links[link].click();
         }
+        links[link].parentNode.parentNode.remove();
     };
     window.alert('Saved ' + counter + ' links.');
 }
