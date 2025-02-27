@@ -307,7 +307,7 @@
                 </div>
                 <div class="mb-3 row">
 
-                    <label for="filter_extension" class="col-md-2 col-form-label">File Select</label>
+                    <label for="filter_extension" class="col-md-2 col-form-label">File select</label>
                     <div class="col-md-10">
                         <input type="file" accept=".har,application/json" onclick="this.value=null" onchange="openHAR(this)" class="invisible" id="harfileinput">
                         <label class="ifzipidle" for="harfileinput"><button class="btn btn-primary" onclick="this.parentElement.click()">Choose a HAR File...</button></label>
@@ -334,7 +334,7 @@
                 </div>
             </div>
             <div class="my-3 row">
-                <label for="playspeed" class="col-md-2 col-form-label">Filter files</label>
+                <label for="playspeed" class="col-md-2 col-form-label">Playback speed</label>
                 <div class="col-md-10">
                     <select class="form-select" id="playspeed" onchange="setSpeed(this.value)">
                         <option value="0.25">Quarter speed</option>
@@ -349,7 +349,7 @@
             </div>
 
             <div class="my-3 row">
-                <span class="col-md-2 col-form-label">Play Controls</span>
+                <span class="col-md-2 col-form-label">Play controls</span>
                 <div class="col-md-10">
                     <button type="button" class="btn btn-primary" onclick="seek(-5)">- 5 secs</button>
                     <button type="button" class="btn btn-primary" onclick="seek(+5)">+ 5 secs</button>
