@@ -335,17 +335,9 @@
                 </div>
             </div>
             <div class="my-3 row">
-                <label for="playspeed" class="col-md-2 col-form-label">Playback speed</label>
+                <label for="playspeed" class="col-md-2 col-form-label">Playback speed (<span id="speedindicator">1.0</span>)</label>
                 <div class="col-md-10">
-                    <select class="form-select" id="playspeed" onchange="setSpeed(this.value)">
-                        <option value="0.25">Quarter speed</option>
-                        <option value="0.5">Half speed</option>
-                        <option value="0.75">Three quarters speed</option>
-                        <option value="1" selected>Full Speed</option>
-                        <option value="1.25">1.25 speed</option>
-                        <option value="1.5">1.5 speed</option>
-                        <option value="2">2 x speed</option>
-                    </select>
+                    <input type="range" class="form-range" min="0.2" max="1.5" step="0.1" id="playspeed" onchange="setSpeed(this.value)">
                 </div>
             </div>
 
@@ -354,6 +346,7 @@
                 <div class="col-md-10">
                     <button type="button" class="btn btn-primary" onclick="seek(-5)">- 5 secs</button>
                     <button type="button" class="btn btn-primary" onclick="seek(+5)">+ 5 secs</button>
+                    <button type="button" class="btn btn-primary" onclick="setSpeed(1)">Reset Speed</button>
                 </div>
             </div>
 
@@ -374,11 +367,12 @@
                     musicPlayer.currentTime += seconds;
                 }
                 function setSpeed(speed) {
-                    var musicPlayer = document.getElementById("musicPlayer");
+                    var musicPlayer = document.getElementById("musicPlayer"),
+                        speedIndicator = document.getElementById("speedindicator");
                     musicPlayer.playbackRate = speed;
-                };
-
-            </script>
+                    speedIndicator.innerHTML = speed;
+                }
+                </script>
         </div>
     </div>
 </div>
