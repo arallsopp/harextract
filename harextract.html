@@ -347,13 +347,46 @@
                     <button type="button" class="btn btn-primary" onclick="seek(-5)">- 5 secs</button>
                     <button type="button" class="btn btn-primary" onclick="seek(+5)">+ 5 secs</button>
                     <button type="button" class="btn btn-primary" onclick="setSpeed('1.0')">Reset Speed</button>
+
+                    <button type="button" class="btn btn-primary" onclick="setIn()">Set IN <span id="A"></span></button>
+                    <button type="button" class="btn btn-primary" onclick="setOut()">Set OUT  <span id="B"></span></button>
+                    <button type="button" id="releaseloop" class="btn btn-primary invisible" onclick="releaseLoop()">Release Loop</button>
+
                 </div>
             </div>
 
             <div class="my-3 row">
-                <audio id="musicPlayer" controls=""></audio>
+                <audio id="musicPlayer" controls="" ontimeupdate="considerLoop()"></audio>
             </div>
                 <script>
+                let A, B;
+                function setIn(){
+                    var musicPlayer = document.getElementById("musicPlayer");
+                    A = musicPlayer.currentTime;
+                    document.getElementById("A").innerHTML = "(" + A + ")";
+                    document.getElementById("releaseloop").classList.remove('invisible');
+                }
+                function setOut(){
+                    var musicPlayer = document.getElementById("musicPlayer");
+                    B = musicPlayer.currentTime;
+                    document.getElementById("B").innerHTML = "(" + B + ")";
+                    document.getElementById("releaseloop").classList.remove('invisible');
+                }
+                function releaseLoop(){
+                    A = B = 0;
+                    document.getElementById("A").innerHTML = '';
+                    document.getElementById("B").innerHTML = '';
+                    document.getElementById("releaseloop").classList.add('invisible');
+
+                }
+                function considerLoop(){
+                    if (A && B){
+                        var musicPlayer = document.getElementById("musicPlayer");
+                        if(musicPlayer.currentTime > B){
+                            musicPlayer.currentTime = A;
+                        }
+                    }
+                }
 
                 function playMusic() {
                     var musicFile = document.getElementById("musicFile").files[0],
