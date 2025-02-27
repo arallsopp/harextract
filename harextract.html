@@ -28,6 +28,7 @@
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <title>MP3 Extractor</title>
     <style>
         header {
@@ -36,12 +37,8 @@
             font-size: xxx-large;
         }
         .closed .ifopen { display: none; }
-
         .open .ifclosed { display: none; }
-        .zipidle .ifzipbusy { display: none; }
-        .zipbusy .ifzipidle { display: none; }
-        .invisible, .ifnewrelease { display: none; }
-        .newrelease .ifnewrelease { display: initial; }
+        .invisible { display: none; }
 
     </style>
     <script>
@@ -338,20 +335,29 @@
                 <label for="playspeed" class="col-md-2 col-form-label">Playback speed (<span id="speedindicator">1.0</span>)</label>
                 <div class="col-md-10">
                     <input type="range" class="form-range" min="0.2" max="1.8" step="0.1" id="playspeed" onchange="setSpeed(this.value)">
+                    <button type="button" class="btn btn-primary" onclick="setSpeed('1.0')">Reset Speed</button>
                 </div>
             </div>
 
             <div class="my-3 row">
+                <hr/>
                 <span class="col-md-2 col-form-label">Play controls</span>
                 <div class="col-md-10">
-                    <button type="button" class="btn btn-primary" onclick="seek(-5)">- 5 secs</button>
-                    <button type="button" class="btn btn-primary" onclick="seek(+5)">+ 5 secs</button>
-                    <button type="button" class="btn btn-primary" onclick="setSpeed('1.0')">Reset Speed</button>
+                    <button type="button" class="btn btn-primary" onclick="seek(-10)"><i class="bi bi-rewind-fill"></i></button>
+                    <button type="button" class="btn btn-primary" onclick="seek(-5)"><i class="bi bi-rewind"></i></button>
+                    <button type="button" class="btn btn-primary" onclick="pause()"><i class="bi bi-pause"></i></button>
+                    <button type="button" class="btn btn-primary" onclick="play()"><i class="bi bi-play"></i></button>
+                    <button type="button" class="btn btn-primary" onclick="seek(+5)"><i class="bi bi-fast-forward"></i></button>
+                    <button type="button" class="btn btn-primary" onclick="seek(+10)"><i class="bi bi-fast-forward-fill"></i></button>
 
-                    <button type="button" class="btn btn-primary" onclick="setIn()">Set IN <span id="A"></span></button>
-                    <button type="button" class="btn btn-primary" onclick="setOut()">Set OUT  <span id="B"></span></button>
-                    <button type="button" id="releaseloop" class="btn btn-primary invisible" onclick="releaseLoop()">Release Loop</button>
-
+                </div>
+            </div>
+            <div class="my-3 row">
+                <span class="col-md-2 col-form-label">Loop</span>
+                <div class="col-md-10">
+                    <button type="button" class="btn btn-primary" onclick="setIn()"><span class="music-icon">𝄆</span> IN <span id="A"></span></button>
+                    <button type="button" class="btn btn-primary" onclick="setOut()"><span class="music-icon">𝄇</span> OUT <span id="B"></span></button>
+                    <button type="button" id="releaseloop" class="btn btn-danger invisible" onclick="releaseLoop()">Release Loop</button>
                 </div>
             </div>
 
@@ -359,7 +365,7 @@
                 <audio id="musicPlayer" controls="" ontimeupdate="considerLoop()"></audio>
             </div>
                 <script>
-                let A, B;
+                let A = 0, B;
                 function setIn(){
                     var musicPlayer = document.getElementById("musicPlayer");
                     A = musicPlayer.currentTime;
@@ -380,7 +386,7 @@
 
                 }
                 function considerLoop(){
-                    if (A && B){
+                    if (B){
                         var musicPlayer = document.getElementById("musicPlayer");
                         if(musicPlayer.currentTime > B){
                             musicPlayer.currentTime = A;
