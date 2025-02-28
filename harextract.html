@@ -368,7 +368,9 @@
                 <div class="col-md-10">
                     <input type="range" class="form-range" min="0.2" max="1.8" step="0.1" id="playspeed" onchange="setSpeed(this.value)">
                     <button type="button" class="btn btn-primary" onclick="incrementSpeed(-0.1,true)">Slower</button>
-                    <button type="button" class="btn btn-primary" onclick="setSpeed('1.0',true)">Reset Speed</button>
+                    <button type="button" id="resetSpeedButton"
+                            class="btn btn-primary"
+                            onclick="setSpeed('1.0',true)">Reset Speed</button>
                     <button type="button" class="btn btn-primary" onclick="incrementSpeed(0.1,true)">Faster</button>
                 </div>
             </div>
@@ -507,6 +509,9 @@
                     var speedIndicator = document.getElementById("speedindicator");
 
                     speed = Math.round(speed * 10) / 10; //dodge javascript floating point errors.
+
+                    resetSpeedButton.classList.toggle('btn-primary', speed === 1);
+                    resetSpeedButton.classList.toggle('btn-danger',speed !== 1);
 
                     config.music_player.playbackRate = speed;
                     speedIndicator.innerHTML = speed;
