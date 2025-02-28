@@ -396,7 +396,7 @@
             </div>
             <div class="my-3 row">
                 <hr/>
-                <span class="col-md-2 col-form-label">Loop</span>
+                <span class="col-md-2 col-form-label">Loop <span id="loopduration"></span></span>
                 <div class="col-md-10">
                     <button type="button" class="btn btn-primary" onclick="setInOut('in',true)"><span
                             class="music-icon">𝄆
@@ -427,6 +427,9 @@
                             document.getElementById("B").innerHTML = "(" + fancyTimeFormat(config.B) + ")";
                             break;
                     }
+                    //update the duration
+                    document.getElementById("loopduration").innerHTML = "(" + fancyTimeFormat(
+                        (config.B ? config.B : config.music_player.duration) - config.A,true) + ")";
                 }
 
                 function setInOut(which, update_slider){
@@ -440,6 +443,7 @@
                     }
                     update_label(which);
                     document.getElementById("releaseloop").classList.remove('invisible');
+                    document.getElementById("loopduration").classList.remove('invisible');
 
                     if(update_slider){
                         document.getElementById("slider").classList.remove('invisible');
@@ -475,7 +479,9 @@
                     document.getElementById("A").innerHTML = '';
                     document.getElementById("B").innerHTML = '';
                     document.getElementById("releaseloop").classList.add('invisible');
-                    document.getElementById("slider").classList.add('invisible')
+                    document.getElementById("loopduration").classList.add('invisible');
+                    document.getElementById("slider").classList.add('invisible');
+
                 }
                 function considerLoop(){
                     if (config.B){
@@ -550,7 +556,7 @@
                     });
                 }
 
-                function fancyTimeFormat(duration) {
+                function fancyTimeFormat(duration, use_letters) {
                     // Hours, minutes and seconds
                     const hrs = ~~(duration / 3600);
                     const mins = ~~((duration % 3600) / 60);
@@ -560,11 +566,11 @@
                     let ret = "";
 
                     if (hrs > 0) {
-                        ret += "" + hrs + ":" + (mins < 10 ? "0" : "");
+                        ret += "" + hrs + (use_letters ? "h ": ":") + (mins < 10 ? "0" : "");
                     }
 
-                    ret += "" + mins + ":" + (secs < 10 ? "0" : "");
-                    ret += "" + secs;
+                    ret += "" + mins + (use_letters ? "m " : ":") + (secs < 10 ? "0" : "");
+                    ret += "" + secs + (use_letters ? "s" : "");
 
                     return ret;
                 }
