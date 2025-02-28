@@ -44,6 +44,7 @@
             uiSetDocState(false);
             uiSetZipState(false);
             document.querySelectorAll(".clearme").forEach((el) => el.innerHTML = '');
+            document.querySelectorAll(".clearme").forEach((el) => el.innerHTML = '');
         }
         function strCompare (a, b) {
             return a.toLocaleLowerCase().localeCompare(b.toLocaleLowerCase());
@@ -405,47 +406,54 @@
             </div>
 
             <script>
-                let A = 0, B;
-
+                function update_label(which){
+                    switch(which){
+                        case 'in':
+                            document.getElementById("A").innerHTML = "(" + fancyTimeFormat(config.A) + ")";
+                            break;
+                        case 'out':
+                            document.getElementById("B").innerHTML = "(" + fancyTimeFormat(config.B) + ")";
+                            break;
+                    }
+                }
                 function setIn(update_slider){
-                    A = config.music_player.currentTime;
-                    document.getElementById("A").innerHTML = "(" + fancyTimeFormat(A) + ")";
+                    config.A = config.music_player.currentTime;
+                    update_label('in');
                     document.getElementById("releaseloop").classList.remove('invisible');
 
                     if(update_slider) {
                         document.getElementById("slider").classList.remove('invisible');
                         var max = config.music_player.duration,
-                            slide_start = A,
-                            slide_end = B ? B : max;
+                            slide_start = config.A,
+                            slide_end = config.B ? config.B : max;
                         createSlider(slide_start, slide_end, max);
                     }
                 }
                 function setOut(update_slider){
-                    B = config.music_player.currentTime;
-                    document.getElementById("B").innerHTML = "(" + fancyTimeFormat(B) + ")";
+                    config.B = config.music_player.currentTime;
+                    update_label('out');
                     document.getElementById("releaseloop").classList.remove('invisible');
 
                     if(update_slider){
                         document.getElementById("slider").classList.remove('invisible');
                         var max = config.music_player.duration,
-                            slide_start = A,
-                            slide_end = B ? B : max;
+                            slide_start = config.A,
+                            slide_end = config.B ? config.B : max;
                         createSlider(slide_start,slide_end,max);
                     }
                 }
                 function updateIn(new_value){
-                    A = new_value;
-                    document.getElementById("A").innerHTML = "(" + fancyTimeFormat(A) + ")";
+                    config.A = new_value;
+                    update_label('in');
 
                     //if A is ahead of current position, cue to there
-
-                    if(config.music_player.currentTime < A){
-                        config.music_player.currentTime = A;
+                    if(config.music_player.currentTime < config.A){
+                        config.music_player.currentTime = config.A;
                     }
                 }
                 function updateOut(new_value){
-                    B = new_value;
-                    document.getElementById("B").innerHTML = "(" +fancyTimeFormat(B) + ")";
+                    config.B = new_value;
+                    update_label('out');
                 }
 
                 function play(go){
@@ -456,16 +464,16 @@
                     }
                 }
                 function releaseLoop(){
-                    A = B = 0;
+                    config.A = config.B = 0;
                     document.getElementById("A").innerHTML = '';
                     document.getElementById("B").innerHTML = '';
                     document.getElementById("releaseloop").classList.add('invisible');
                     document.getElementById("slider").classList.add('invisible')
                 }
                 function considerLoop(){
-                    if (B){
-                        if(config.music_player.currentTime > B){
-                            config.music_player.currentTime = A;
+                    if (config.B){
+                        if(config.music_player.currentTime > config.B){
+                            config.music_player.currentTime = config.A;
                         }
                     }
                 }
@@ -479,12 +487,19 @@
                     config.music_player.play();
                 }
                 function seek(seconds){
-                    config.music_player.currentTime += seconds;
+                    var target_time = config.music_player.currentTime + seconds;
+
+                    //check you're after the start of the loop if present
+                    if(config.A && target_time < config.A){
+                        target_time = config.A;
+                    }
+                    config.music_player.currentTime = target_time;
                 }
                 function setSpeed(speed, updateControl) {
-                    speedIndicator = document.getElementById("speedindicator");
+                    var speedIndicator = document.getElementById("speedindicator");
 
                     speed = Math.round(speed * 10) / 10; //dodge javascript floating point errors.
+
                     config.music_player.playbackRate = speed;
                     speedIndicator.innerHTML = speed;
                     if(updateControl){
