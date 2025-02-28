@@ -398,9 +398,11 @@
                 <hr/>
                 <span class="col-md-2 col-form-label">Loop</span>
                 <div class="col-md-10">
-                    <button type="button" class="btn btn-primary" onclick="setIn(true)"><span class="music-icon">𝄆
+                    <button type="button" class="btn btn-primary" onclick="setInOut('in',true)"><span
+                            class="music-icon">𝄆
                     </span> IN <span id="A"></span></button>
-                    <button type="button" class="btn btn-primary" onclick="setOut(true)"><span class="music-icon">𝄇
+                    <button type="button" class="btn btn-primary" onclick="setInOut('out',true)"><span
+                            class="music-icon">𝄇
                     </span> OUT <span id="B"></span></button>
                     <button type="button" id="releaseloop" class="btn btn-danger invisible" onclick="releaseLoop()">Release Loop</button>
                 </div>
@@ -426,22 +428,17 @@
                             break;
                     }
                 }
-                function setIn(update_slider){
-                    config.A = config.music_player.currentTime;
-                    update_label('in');
-                    document.getElementById("releaseloop").classList.remove('invisible');
 
-                    if(update_slider) {
-                        document.getElementById("slider").classList.remove('invisible');
-                        var max = config.music_player.duration,
-                            slide_start = config.A,
-                            slide_end = config.B ? config.B : max;
-                        createSlider(slide_start, slide_end, max);
+                function setInOut(which, update_slider){
+                    switch(which){
+                        case 'in':
+                            config.A = config.music_player.currentTime;
+                            break;
+                        case 'out':
+                            config.B = config.music_player.currentTime;
+                            break;
                     }
-                }
-                function setOut(update_slider){
-                    config.B = config.music_player.currentTime;
-                    update_label('out');
+                    update_label(which);
                     document.getElementById("releaseloop").classList.remove('invisible');
 
                     if(update_slider){
