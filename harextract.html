@@ -101,7 +101,7 @@
 
                     if (!ent.response.content.text)
                         harent.error = 'No content.';
-                    else if (ent.response.content.encoding != 'base64')
+                    else if (ent.response.content.encoding !== 'base64')
                         harent.error = "Can't decode.";
                     if (harent.error) {
                         console.log(`harextract: skipped ${harent.name} (${id}): ${harent.error}`);
@@ -190,7 +190,7 @@
                     }
                     links[link].click();
                 }
-            };
+            }
             window.alert('Saved ' + counter + ' links.');
         }
         function populateTable (tableid, items, fields) {
@@ -586,7 +586,7 @@
 <script>
     var config;
 
-    document.addEventListener("DOMContentLoaded", function(event) {
+    document.addEventListener("DOMContentLoaded", function() {
         //enable tooltips
         var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]')),
             tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
