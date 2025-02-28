@@ -393,7 +393,7 @@
                 function setIn(){
                     var musicPlayer = document.getElementById("musicPlayer");
                     A = musicPlayer.currentTime;
-                    document.getElementById("A").innerHTML = "(" + A + ")";
+                    document.getElementById("A").innerHTML = "(" + (Math.round(A * 100) / 100) + ")";
                     document.getElementById("releaseloop").classList.remove('invisible');
                 }
 
@@ -408,7 +408,7 @@
                 function setOut(){
                     var musicPlayer = document.getElementById("musicPlayer");
                     B = musicPlayer.currentTime;
-                    document.getElementById("B").innerHTML = "(" + B + ")";
+                    document.getElementById("B").innerHTML = "(" + Math.round(B * 100) / 100 + ")";
                     document.getElementById("releaseloop").classList.remove('invisible');
                 }
                 function releaseLoop(){
