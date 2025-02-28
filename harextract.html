@@ -2,6 +2,8 @@
 <html lang="en" class="h-100">
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml"
+          href="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz48IS0tIFVwbG9hZGVkIHRvOiBTVkcgUmVwbywgd3d3LnN2Z3JlcG8uY29tLCBHZW5lcmF0b3I6IFNWRyBSZXBvIE1peGVyIFRvb2xzIC0tPgo8c3ZnIHZlcnNpb249IjEuMSIgaWQ9IlVwbG9hZGVkIHRvIHN2Z3JlcG8uY29tIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiANCgkgd2lkdGg9IjgwMHB4IiBoZWlnaHQ9IjgwMHB4IiB2aWV3Qm94PSIwIDAgMzIgMzIiIHhtbDpzcGFjZT0icHJlc2VydmUiPg0KPHN0eWxlIHR5cGU9InRleHQvY3NzIj4NCgkuc2hhcnBjb3JuZXJzX2VlbntmaWxsOiMxMTE5MTg7fQ0KCS5zdDB7ZmlsbDojMTExOTE4O30NCjwvc3R5bGU+DQo8cGF0aCBjbGFzcz0ic2hhcnBjb3JuZXJzX2VlbiIgZD0iTTI5LDIyYzAsMi0xLjU4Niw0LjQyNS00LjMwNSw0LjkwNWMtMi43MTksMC40NzktNS4yMzUtMC44OTUtNS42MTktMy4wNzENCgljLTAuMzg0LTIuMTc2LDEuNTEtNC4zMjgsNC4yMjktNC44MDdjMS4zNjQtMC4yNDEsMi42NzYtMC4wMTQsMy42OTUsMC41NDZWOC40NjVsLTE1LDMuNTc5YzAsMCwwLDEwLjk1NiwwLDEyLjk1Ng0KCXMtMS41ODYsNC40MjUtNC4zMDUsNC45MDVjLTIuNzE5LDAuNDc5LTUuMjM1LTAuODk1LTUuNjE5LTMuMDcxYy0wLjM4NC0yLjE3NiwxLjUxLTQuMzI4LDQuMjI5LTQuODA3DQoJQzcuNjcsMjEuNzg2LDguOTgyLDIyLjAxMiwxMCwyMi41NzJWNi40MjFMMjksMkMyOSwyLDI5LDIwLDI5LDIyeiIvPg0KPC9zdmc+" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.8.1/nouislider.css" integrity="sha512-MKxcSu/LDtbIYHBNAWUQwfB3iVoG9xeMCm32QV5hZ/9lFaQZJVaXfz9aFa0IZExWzCpm7OWvp9zq9gVip/nLMg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -18,6 +20,12 @@
 
         .noUi-connect {
             background: #0f6efd;
+        }
+        .noUi-tooltip {
+            display: none;
+        }
+        .noUi-active .noUi-tooltip {
+            display: block;
         }
     </style>
     <script>
@@ -521,6 +529,12 @@
                         range: {
                             'min': 0,
                             'max': max
+                        },
+                        tooltips: {
+                            // tooltips are output only, so only a "to" is needed
+                            to: function(numericValue) {
+                                return fancyTimeFormat(numericValue);
+                            }
                         }
                     });
 
