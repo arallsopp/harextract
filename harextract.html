@@ -689,7 +689,12 @@
         config.music_player.addEventListener('ended', function(){
             if(config.B){
                 //we are looping, let it handle it.
+                console.log("loop detected at end, going back");
+                config.music_player.currentTime = config.A;
+                config.music_player.play();
+
             }else {
+                console.log("No loop at end, going to next track");
                 playTrack(+1);
             }
         }, false);
