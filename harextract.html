@@ -379,7 +379,9 @@
             <div class="my-3 row">
                 <label for="musicFile" class="col-md-2 col-form-label">Load file</label>
                 <div class="col-md-10">
-                    <input type="file" id="musicFile" accept="*" onchange="playMusic()">
+                    <input type="file"
+                           multiple
+                           id="musicFile" accept="*" onchange="playMusic()">
                 </div>
             </div>
             <div class="my-3 row">
@@ -411,6 +413,17 @@
                     <button type="button" data-bs-toggle="tooltip" data-bs-placement="top" title="+ 10 secs"
                             class="btn btn-primary" onclick="seek(+10)"><i class="bi bi-fast-forward-fill"></i></button>
 
+                </div>
+            </div>
+            <div class="my-3 row">
+                <hr/>
+                <span class="col-md-2 col-form-label">Track controls</span>
+                <div class="col-md-10">
+                    <span id="playtitle"></span>
+                    <button type="button" data-bs-toggle="tooltip" data-bs-placement="top" title="Next Track"
+                            class="btn btn-primary" onclick="playTrack(1)"><i class="bi bi-skip-forward-fill"></i></button>
+                    <button type="button" data-bs-toggle="tooltip" data-bs-placement="top" title="Previous Track"
+                            class="btn btn-primary" onclick="playTrack(-1)"><i class="bi bi-skip-backward-fill"></i></button>
                 </div>
             </div>
             <div class="my-3 row">
@@ -455,6 +468,9 @@
                     switch(which){
                         case 'in':
                             config.A = config.music_player.currentTime;
+                            if(!config.B){
+                                config.B = config.music_player.duration;
+                            }
                             break;
                         case 'out':
                             config.B = config.music_player.currentTime;
@@ -468,7 +484,7 @@
                         document.getElementById("slider").classList.remove('invisible');
                         var max = config.music_player.duration,
                             slide_start = config.A,
-                            slide_end = config.B ? config.B : max;
+                            slide_end = config.B;
                         createSlider(slide_start,slide_end,max);
                     }
                 }
@@ -510,13 +526,23 @@
                     }
                 }
 
-                function playMusic() {
-                    var musicFile = document.getElementById("musicFile").files[0];
+                function playTrack(index){
+                    config.track_index+=index;
+                    console.log("playing track", index);
 
-                    config.music_player.src = URL.createObjectURL(musicFile);
+                    var track = config.tracks[config.track_index];
+
+                    config.music_player.src = URL.createObjectURL(track);
                     setSpeed('1.0',true);
                     releaseLoop();
+                    document.getElementById("playtitle").innerHTML = track.name;
                     config.music_player.play();
+                }
+
+                function playMusic() {
+                    config.tracks = document.getElementById("musicFile").files;
+                    config.track_index = 0;
+                    playTrack(0);
                 }
                 function seek(seconds){
                     var target_time = config.music_player.currentTime + seconds;
@@ -606,6 +632,7 @@
     var config;
 
     document.addEventListener("DOMContentLoaded", function() {
+
         //enable tooltips
         var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]')),
             tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
@@ -614,6 +641,7 @@
                 });
         });
 
+
         //setup slider
         var slider = document.getElementById('slider');
 
@@ -621,8 +649,19 @@
         config = {
             A: 0,
             B,
-            music_player: document.getElementById("musicPlayer")
+            music_player: document.getElementById("musicPlayer"),
+            track_index: 0,
+            tracks: []
         }
+
+        //set up auto play of next file if available
+        config.music_player.addEventListener('ended', function(){
+            if(config.B){
+                //we are looping, let it handle it.
+            }else {
+                playTrack(+1);
+            }
+        }, false);
     });
 </script>
 </body>
