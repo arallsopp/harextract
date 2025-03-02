@@ -381,7 +381,7 @@
                 <div class="col-md-10">
                     <input type="file"
                            multiple
-                           id="musicFile" accept="*" onchange="playMusic()">
+                           id="musicFile" accept="*" onchange="loadTracksAndPlay()">
                 </div>
             </div>
             <div class="my-3 row">
@@ -415,17 +415,20 @@
 
                 </div>
             </div>
-            <div class="my-3 row">
+            <div id="trackSelectionRow" class="my-3 row invisible"><!-- only if multi tracks -->
                 <hr/>
                 <span class="col-md-2 col-form-label">Track controls</span>
                 <div class="col-md-10">
-                    <span id="playtitle"></span>
-                    <button type="button" data-bs-toggle="tooltip" data-bs-placement="top" title="Next Track"
-                            class="btn btn-primary" onclick="playTrack(1)"><i class="bi bi-skip-forward-fill"></i></button>
-                    <button type="button" data-bs-toggle="tooltip" data-bs-placement="top" title="Previous Track"
-                            class="btn btn-primary" onclick="playTrack(-1)"><i class="bi bi-skip-backward-fill"></i></button>
+                    <div class="input-group">
+                        <select id="trackSelector" class="form-select"></select>
+                        <button type="button" data-bs-toggle="tooltip" data-bs-placement="top" title="Previous Track"
+                                class="btn btn-primary" onclick="playTrack(-1)"><i class="bi bi-skip-backward-fill"></i></button>
+                        <button type="button" data-bs-toggle="tooltip" data-bs-placement="top" title="Next Track"
+                                class="btn btn-primary" onclick="playTrack(1)"><i class="bi bi-skip-forward-fill"></i></button>
+                    </div>
                 </div>
             </div>
+
             <div class="my-3 row">
                 <hr/>
                 <span class="col-md-2 col-form-label">Loop <span id="loopduration"></span></span>
@@ -535,13 +538,34 @@
                     config.music_player.src = URL.createObjectURL(track);
                     setSpeed('1.0',true);
                     releaseLoop();
-                    document.getElementById("playtitle").innerHTML = track.name;
+                    document.getElementById("trackSelector").value = track.name;
                     config.music_player.play();
                 }
 
-                function playMusic() {
+                function loadTracksAndPlay() {
                     config.tracks = document.getElementById("musicFile").files;
                     config.track_index = 0;
+                    config.track_limit = config.tracks.length;
+
+                    var trackSelector = document.getElementById("trackSelector");
+
+                    //empty track selection
+                    while (trackSelector.options.length > 0) {
+                        trackSelector.remove(0);
+                    }
+
+                    //add tracks to the selection
+                    for(const track of config.tracks){
+                        let opt = document.createElement("option");
+                        opt.text = track.name;
+                        trackSelector.append(opt);
+                    };
+
+                    //show track selection row if multiple
+                    var trackSelectionRow = document.getElementById("trackSelec tionRow");
+                    trackSelectionRow.classList.toggle("invisible",config.tracks.length > 2);
+
+
                     playTrack(0);
                 }
                 function seek(seconds){
