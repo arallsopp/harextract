@@ -27,6 +27,22 @@
         .noUi-active .noUi-tooltip {
             display: block;
         }
+
+        /* hide the pips */
+        .noUi-marker{
+            display:none;
+        }
+        .noUi-value{
+            font-size:0;
+            margin-top:-65px;
+        }
+        .noUi-value:before{
+            content: "\f3e7";
+            font-family: bootstrap-icons !important;
+            font-size:16px;
+            color:#dc3545;
+        }
+
     </style>
     <script>
         let loaded = {};
@@ -407,7 +423,7 @@
                     <button type="button" id="releaseloop" class="btn btn-danger invisible" onclick="releaseLoop()">Release Loop</button>
                 </div>
             </div>
-            <div class="my-3 row">
+            <div class="mt-4 row">
                 <div class="col-md-10 offset-md-2">
                     <div id="slider" class="invisible"></div>
                 </div>
@@ -543,6 +559,11 @@
                             to: function(numericValue) {
                                 return fancyTimeFormat(numericValue);
                             }
+                        },
+                        pips: {
+                            mode: 'values',
+                            values: [0, 333,667],
+                            density: 0
                         }
                     });
 
