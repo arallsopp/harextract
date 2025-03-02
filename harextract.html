@@ -531,7 +531,15 @@
 
                 function playTrack(index){
                     config.track_index+=index;
-                    console.log("playing track", index);
+                    if(config.track_index > (config.tracks.length-1)) {
+                        //fell off end
+                        config.track_index = config.tracks.length - 1;
+                    }else if(config.track_index < 0){
+                        //fell off beginning
+                        config.track_index = 0;
+                    }
+
+                    console.log("playing track", config.track_index);
 
                     var track = config.tracks[config.track_index];
 
@@ -562,9 +570,8 @@
                     };
 
                     //show track selection row if multiple
-                    var trackSelectionRow = document.getElementById("trackSelec tionRow");
-                    trackSelectionRow.classList.toggle("invisible",config.tracks.length > 2);
-
+                    var trackSelectionRow = document.getElementById("trackSelectionRow");
+                    trackSelectionRow.classList.toggle("invisible",config.tracks.length === 1);
 
                     playTrack(0);
                 }
