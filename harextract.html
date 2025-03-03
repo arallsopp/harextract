@@ -18,6 +18,9 @@
         .open .ifclosed { display: none; }
         .invisible { display: none; }
 
+        #speedindicator{
+            white-space: nowrap;
+        }
         .noUi-connect {
             background: #0f6efd; /* set the bar colour */
         }
@@ -244,7 +247,7 @@
         </div>
     </div>
 </header>
-<div class="container flex-shrink-0 mb-3">
+<div class="container-lg flex-shrink-0 mb-3">
     <ul class="nav nav-tabs" id="myTab" role="tablist">
         <li class="nav-item" role="presentation">
             <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#home" type="button" role="tab" aria-controls="home" aria-selected="true">Home</button>
@@ -385,7 +388,7 @@
                 </div>
             </div>
             <div class="my-3 row">
-                <label for="playspeed" class="col-md-2 col-form-label">Playback speed (<span id="speedindicator">1.0</span>)</label>
+                <label for="playspeed" class="col-md-2 col-form-label">Playback speed <span id="speedindicator">(1.0)</span></label>
                 <div class="col-md-10">
                     <input type="range" class="form-range" min="0.2" max="1.8" step="0.1" id="playspeed" onchange="setSpeed(this.value)">
                     <button type="button" class="btn btn-primary" onclick="incrementSpeed(-0.1,true)">Slower</button>
@@ -417,7 +420,10 @@
             </div>
             <div id="trackSelectionRow" class="my-3 row invisible"><!-- only if multi tracks -->
                 <hr/>
-                <span class="col-md-2 col-form-label">Track controls</span>
+                <span class="col-md-2 col-form-label">Track
+                    <span class="d-inline-block d-md-none"> controls</span>
+                    <span id="trackIndicator"></span>
+                </span>
                 <div class="col-md-10">
                     <div class="input-group">
                         <select id="trackSelector" class="form-select"></select>
@@ -541,12 +547,14 @@
 
                     console.log("playing track", config.track_index);
 
-                    var track = config.tracks[config.track_index];
+                    var track = config.tracks[config.track_index],
+                        trackIndicator = document.getElementById("trackIndicator");
 
                     config.music_player.src = URL.createObjectURL(track);
                     setSpeed('1.0',true);
                     releaseLoop();
                     document.getElementById("trackSelector").value = track.name;
+                    trackIndicator.innerHTML = "(" + (config.track_index+1) + " of " + (config.tracks.length) + ")";
                     config.music_player.play();
                 }
 
@@ -593,7 +601,7 @@
                     resetSpeedButton.classList.toggle('btn-danger',speed !== 1);
 
                     config.music_player.playbackRate = speed;
-                    speedIndicator.innerHTML = speed;
+                    speedIndicator.innerHTML = "(" + speed + ")";
                     if(updateControl){
                         var rangeCtl = document.getElementById("playspeed");
                         rangeCtl.value = speed;
