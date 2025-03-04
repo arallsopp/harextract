@@ -643,8 +643,14 @@
                     var trackSelectionRow = document.getElementById("trackSelectionRow");
                     trackSelectionRow.classList.toggle("invisible", config.tracks.length === 1);
 
-
-                    playTrack(0);
+                    //allow sorting before first playback
+                    if(config.tracks.length > 1){
+                        var sortModal = new bootstrap.Modal(document.getElementById("sortModal"), {});
+                        sortModal.show();
+                    }else{
+                        //just play track zero
+                        playTrack(0);
+                    }
                 }
 
                 function rePopulateTrackSelector(){
