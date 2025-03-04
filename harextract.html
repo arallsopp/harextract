@@ -426,11 +426,35 @@
                 </span>
                 <div class="col-md-10">
                     <div class="input-group">
-                        <select id="trackSelector" class="form-select"></select>
+                        <select id="trackSelector" class="form-select"
+                                onchange="playTrack(this.selectedIndex,true)"></select>
                         <button type="button" data-bs-toggle="tooltip" data-bs-placement="top" title="Previous Track"
                                 class="btn btn-primary" onclick="playTrack(-1)"><i class="bi bi-skip-backward-fill"></i></button>
                         <button type="button" data-bs-toggle="tooltip" data-bs-placement="top" title="Next Track"
                                 class="btn btn-primary" onclick="playTrack(1)"><i class="bi bi-skip-forward-fill"></i></button>
+                        <!-- Button trigger modal -->
+                        <button type="button"  data-bs-toggle="modal" data-bs-target="#sortModal"
+                                class="btn btn-primary"><i class="bi bi-sort-down"></i>
+                            Sort
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal -->
+            <div class="modal fade" id="sortModal" tabindex="-1" aria-labelledby="sortModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5" id="sortModalLabel">Track Listing</h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <ul id="sortableTrackList" class="list-group"></ul>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -535,8 +559,15 @@
                     }
                 }
 
-                function playTrack(index){
-                    config.track_index+=index;
+                function playTrack(index,absolute){
+
+                    if(absolute){
+                        config.track_index = index;
+                    }else {
+                        //play track index relative to current
+                        config.track_index += index;
+                    }
+
                     if(config.track_index > (config.tracks.length-1)) {
                         //fell off end
                         config.track_index = config.tracks.length - 1;
@@ -563,25 +594,72 @@
                     config.track_index = 0;
                     config.track_limit = config.tracks.length;
 
-                    var trackSelector = document.getElementById("trackSelector");
+                    rePopulateTrackSelector();
 
+                    //update the sortable list
+                    var sortableTrackList = document.getElementById("sortableTrackList");
+                    sortableTrackList.innerHTML="";
+
+                    //add tracks to the selection, and to the sortable modal
+                    for(const track of config.tracks) {
+                        let li = document.createElement("li");
+                        li.innerHTML = track.name + "<i class=\"bi bi-arrows-vertical float-end\"></i>";
+                        li.classList.add("list-group-item");
+                        li.dataset.id=track.name;
+                        sortableTrackList.append(li);
+                    }
+
+                    //make the list sortable
+                    var sortable = Sortable.create(sortableTrackList,{
+                        onUpdate: function (event) {
+                            let sorted = sortable.toArray(),
+                                sortedArray = Array.from(config.tracks),
+
+                                /* for consistency in UX */
+                                currentTrack = sortedArray[config.track_index],
+                                currentPosition = config.music_player.currentTime,
+                                paused = config.music_player.paused;
+
+                            //sort files to match
+                            sortedArray.sort(function(a, b){
+                                return sorted.indexOf(a.name) - sorted.indexOf(b.name);
+                            });
+                            config.tracks = sortedArray; //put this back as the sorted list
+                            rePopulateTrackSelector();
+
+                            //if you're currently playing, the track index is now wrong
+                            var new_index = config.tracks.findIndex((track) => track.name === currentTrack.name);
+                            playTrack(new_index,true);
+                            config.music_player.currentTime = currentPosition;
+                            if(paused){
+                                config.music_player.pause();
+                            }
+
+                            //todo: NB you lose the A/B loop / playspeed if sorting.
+                        }
+                    });
+
+                    //show track selection row if multiple
+                    var trackSelectionRow = document.getElementById("trackSelectionRow");
+                    trackSelectionRow.classList.toggle("invisible", config.tracks.length === 1);
+
+
+                    playTrack(0);
+                }
+
+                function rePopulateTrackSelector(){
                     //empty track selection
+                    var trackSelector = document.getElementById("trackSelector");
                     while (trackSelector.options.length > 0) {
                         trackSelector.remove(0);
                     }
 
-                    //add tracks to the selection
-                    for(const track of config.tracks){
+                    //add tracks to the selector
+                    for(const track of config.tracks) {
                         let opt = document.createElement("option");
                         opt.text = track.name;
                         trackSelector.append(opt);
-                    };
-
-                    //show track selection row if multiple
-                    var trackSelectionRow = document.getElementById("trackSelectionRow");
-                    trackSelectionRow.classList.toggle("invisible",config.tracks.length === 1);
-
-                    playTrack(0);
+                    }
                 }
                 function seek(seconds){
                     var target_time = config.music_player.currentTime + seconds;
@@ -667,6 +745,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.8.1/nouislider.min.js" integrity="sha512-g/feAizmeiVKSwvfW0Xk3ZHZqv5Zs8PEXEBKzL15pM0SevEvoX8eJ4yFWbqakvRj7vtw1Q97bLzEpG2IVWX0Mg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 <script>
     var config;
 
