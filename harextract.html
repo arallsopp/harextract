@@ -34,6 +34,9 @@
         .accordion-item .accordion-button{
             background:#e7f1ff; /* fix the accordions which don't seem to have borders */
         }
+        .w-minimal{
+            width:4em;
+        }
     </style>
     <script>
         let loaded = {};
@@ -224,8 +227,6 @@
             }
 
         }
-
-
 
         // i'd really like this to stay self-contained and offline, so i'm rolling my own
         // dom utility functions instead of using e.g. jquery.
@@ -461,7 +462,7 @@
 
             <div class="my-3 row">
                 <hr/>
-                <span class="col-md-2 col-form-label">Loop <span id="loopduration"></span></span>
+                <span class="col-md-2 col-form-label">Loop <span id="loopduration" class="looping"></span></span>
                 <div class="col-md-10">
                     <button type="button" class="btn btn-primary" onclick="setInOut('in',true)"><span
                             class="music-icon">𝄆
@@ -469,9 +470,35 @@
                     <button type="button" class="btn btn-primary" onclick="setInOut('out',true)"><span
                             class="music-icon">𝄇
                     </span> OUT <span id="B"></span></button>
-                    <button type="button" id="releaseloop" class="btn btn-danger invisible" onclick="releaseLoop()">Release Loop</button>
+                    <button type="button" id="releaseloop" class="looping btn btn-danger invisible" onclick="releaseLoop()">
+                        <span class="d-none d-sm-block">Release Loop</span>
+                        <span class="d-block d-sm-none">Exit</span>
+                    </button>
+                    <button type="button" id="btnAdvanced" class="looping btn btn-secondary invisible" onclick="toggleAdvanced()">
+                        <span class="d-none d-sm-block">Advanced</span>
+                        <span class="d-block d-sm-none">+</span>
+                    </button>
+                </div>
+
+                <!-- advanced loop controls -->
+                <div id="advanced" class="invisible col-md-10 offset-md-2 mt-1">
+                    <label for="adv_repeat_count" class="form-label">After </label>
+                    <input id="adv_repeat_count" type="number"
+                           class="form-control d-inline w-minimal"
+                           value="2" min="1" max="99"
+                           onchange="updateAdvanced(this)"/>
+                    <label for="adv_action" class="form-label">repeats </label>
+                    <select class="form-select d-inline w-auto"
+                            id="adv_action"
+                            onchange="updateAdvanced(this)">
+                        <option value="none" selected>do nothing</option>
+                        <option value="expand">expand the loop</option>
+                        <option value="advance">advance the loop</option>
+                        <option value="tempo">increase the tempo</option>
+                    </select>
                 </div>
             </div>
+
             <div class="my-3 row">
                 <div class="col-md-10 offset-md-2">
                     <div id="slider" class="invisible"></div>
@@ -510,16 +537,22 @@
                             break;
                     }
                     update_label(which);
-                    document.getElementById("releaseloop").classList.remove('invisible');
-                    document.getElementById("loopduration").classList.remove('invisible');
 
-                    if(update_slider){
-                        document.getElementById("slider").classList.remove('invisible');
-                        var max = config.music_player.duration,
-                            slide_start = config.A,
-                            slide_end = config.B;
-                        createSlider(slide_start,slide_end,max);
+                    //show looping controls
+                    document.querySelectorAll('.looping').forEach(function(el) {
+                        el.classList.remove('invisible');
+                    });
+
+                    if(update_slider) {
+                        updateSlider();
                     }
+                }
+                function updateSlider(){
+                    document.getElementById("slider").classList.remove('invisible');
+                    var max = config.music_player.duration,
+                        slide_start = config.A,
+                        slide_end = config.B;
+                    createSlider(slide_start,slide_end,max);
                 }
                 function updateIn(new_value){
                     config.A = new_value;
@@ -542,18 +575,85 @@
                         config.music_player.pause();
                     }
                 }
+
+                function updateAdvanced(which){
+                    switch(which.id){
+                        case 'adv_repeat_count':
+                            config.advanced.repeat_count = which.value;
+                            break
+                        case 'adv_action':
+                            config.advanced.action = which.value;
+                    }
+                }
+
+                function toggleAdvanced(force){
+                    //show or hide the additional controls
+                    var state = !config.advanced.shown;
+                    if(typeof (force) !== "undefined"){
+                        state = force;
+                    }
+
+                    config.advanced.shown = state;
+                    document.getElementById("btnAdvanced").classList.toggle("btn-primary",state);
+                    document.getElementById("btnAdvanced").classList.toggle("btn-secondary",!state);
+                    document.getElementById("advanced").classList.toggle("invisible",!state);
+                }
                 function releaseLoop(){
                     config.A = config.B = 0;
                     document.getElementById("A").innerHTML = '';
                     document.getElementById("B").innerHTML = '';
-                    document.getElementById("releaseloop").classList.add('invisible');
-                    document.getElementById("loopduration").classList.add('invisible');
+
+                    //hide looping controls
+                    document.querySelectorAll('.looping').forEach(function(el) {
+                        el.classList.add('invisible');
+                    });
                     document.getElementById("slider").classList.add('invisible');
 
                 }
                 function considerLoop(){
                     if (config.B){
                         if(config.music_player.currentTime > config.B){
+                            //due to loop, check advanced options
+                            if(config.advanced.shown) {
+                                config.advanced.repeats_done++; //increment counter
+                                if (config.advanced.repeats_done >= config.advanced.repeat_count) {
+                                    //trigger the actions
+                                    switch (config.advanced.action) {
+                                        case 'none':
+                                            break;
+                                        case 'expand':
+                                            var new_B = (config.B*1.0) + 10;
+                                            if(new_B > config.music_player.duration){
+                                                new_B = config.music_player.duration;
+                                            }
+                                            config.B = new_B;
+                                            update_label('out');
+                                            updateSlider();
+                                            break;
+                                        case 'advance':
+                                            var new_A = (config.A*1.0) + 10,
+                                                new_B = (config.B*1.0) + 10;
+                                            if(new_A > config.music_player.duration){
+                                                new_A = config.A;
+                                            }
+                                            if(new_B > config.music_player.duration){
+                                                new_B = config.music_player.duration;
+                                            }
+                                            config.A = new_A;
+                                            config.B = new_B;
+                                            update_label('in');
+                                            update_label('out');
+                                            updateSlider();
+                                            break;
+
+                                        case 'tempo':
+                                            var current_speed = config.music_player.playbackRate;
+                                            setSpeed(current_speed + 0.1, true);
+                                            break;
+                                    }
+                                    config.advanced.repeats_done = 0; //reset counter
+                                }
+                            }
                             config.music_player.currentTime = config.A;
                         }
                     }
@@ -775,7 +875,13 @@
             B,
             music_player: document.getElementById("musicPlayer"),
             track_index: 0,
-            tracks: []
+            tracks: [],
+            advanced: {
+                shown: false,
+                repeat_count: 2,
+                repeats_done: 0,
+                action: "none"
+            }
         }
 
         //set up auto play of next file if available
